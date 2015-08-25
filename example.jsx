@@ -24,15 +24,12 @@ Home = React.createClass({
 });
 
 Post = React.createClass({
-  propTypes: {
-    slug: React.PropTypes.string.isRequired
-  },
   mixins: [ReactMeteorData],
   getMeteorData() {
-    var subscription = Meteor.subscribe('post', this.props.slug);
+    var subscription = Meteor.subscribe('post', this.props.params.slug);
     return {
       ready: subscription.ready(),
-      post: Posts.findOne({ slug: this.props.slug })
+      post: Posts.findOne({ slug: this.props.params.slug })
     };
   },
   render() {
@@ -46,21 +43,12 @@ Post = React.createClass({
   }
 });
 
-FlowRouter.route('/', {
-  action: function() {
-    ReactLayout.render(Layout, {
-      content: <Home />
-    });
-  }
-});
-
-FlowRouter.route('/post/:slug', {
-  action: function(params) {
-    ReactLayout.render(Layout, {
-      content: <Post slug={params.slug} />
-    });
-  }
-});
+Reaktor.init(
+  <Router>
+    <Route path="/" layout={Layout} content={Home} />
+    <Route path="/post/:slug" layout={Layout} content={Post} />
+  </Router>
+);
 
 if (Meteor.isServer) {
   if (Posts.find().count() === 0) {
